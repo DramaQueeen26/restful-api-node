@@ -1,5 +1,5 @@
 import { UserModel } from "../../data";
-import { CustomError, RegisterUserDto } from "../../domain";
+import { CustomError, RegisterUserDto, UserEntity } from "../../domain";
 
 export class AuthService {
 
@@ -10,7 +10,23 @@ export class AuthService {
         const existUser = await UserModel.findOne({ email: registerUserDto.email })
         if( existUser ) throw CustomError.badRequest('Email alredy exists')
 
-        return 'ok'
+        try {
+            
+            const user = new UserModel(registerUserDto)
+            await user.save()
+
+            const { password, ...userEntity } = UserEntity.fromObject(user)
+
+            return { 
+                user: userEntity, 
+                token: 'ABC' 
+            }
+
+        } catch (error) {
+            
+            throw CustomError.internalServer(`${error}`)
+
+        }
 
     }
 
