@@ -1,33 +1,37 @@
+import { PasswordEncrypt } from '../../config';
 import { UserModel } from "../../data";
 import { CustomError, RegisterUserDto, UserEntity } from "../../domain";
 
 export class AuthService {
 
-    constructor(){}
+  constructor() { }
 
-    public async registerUser( registerUserDto: RegisterUserDto ) {
+  public async registerUser( registerUserDto: RegisterUserDto ) {
 
-        const existUser = await UserModel.findOne({ email: registerUserDto.email })
-        if( existUser ) throw CustomError.badRequest('Email alredy exists')
+    const existUser = await UserModel.findOne( { email: registerUserDto.email } );
+    if ( existUser ) throw CustomError.badRequest( 'Email alredy exists' );
 
-        try {
-            
-            const user = new UserModel(registerUserDto)
-            await user.save()
+    try {
 
-            const { password, ...userEntity } = UserEntity.fromObject(user)
+      const user = new UserModel( registerUserDto );
 
-            return { 
-                user: userEntity, 
-                token: 'ABC' 
-            }
+      user.password = PasswordEncrypt.hash( registerUserDto.password );
 
-        } catch (error) {
-            
-            throw CustomError.internalServer(`${error}`)
+      await user.save();
 
-        }
+      const { password, ...userEntity } = UserEntity.fromObject( user );
+
+      return {
+        user: userEntity,
+        token: 'ABC'
+      };
+
+    } catch ( error ) {
+
+      throw CustomError.internalServer( `${ error }` );
 
     }
+
+  }
 
 }
