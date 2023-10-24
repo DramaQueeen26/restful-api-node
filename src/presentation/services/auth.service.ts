@@ -1,6 +1,6 @@
 import { PasswordEncrypt } from '../../config';
 import { UserModel } from "../../data";
-import { CustomError, RegisterUserDto, UserEntity } from "../../domain";
+import { CustomError, LoginUserDto, RegisterUserDto, UserEntity } from "../../domain";
 
 export class AuthService {
 
@@ -31,6 +31,25 @@ export class AuthService {
       throw CustomError.internalServer( `${ error }` );
 
     }
+
+  }
+
+  public async loginUser( loginUserDto: LoginUserDto ) {
+
+    const user = await UserModel.findOne( { email: loginUserDto.email } );
+
+    if ( !user ) throw CustomError.badRequest( 'Email not exist' );
+
+    const isMatching = PasswordEncrypt.compare( loginUserDto.password, user.password );
+
+    if ( !isMatching ) throw CustomError.badRequest( 'Password is not valid' );
+
+    const { password, ...userEntity } = UserEntity.fromObject( user );
+
+    return {
+      user: userEntity,
+      token: 'ABC'
+    };
 
   }
 
