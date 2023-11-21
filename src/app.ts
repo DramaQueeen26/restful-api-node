@@ -1,20 +1,25 @@
-import { envs } from './config/envs'
-import { MongoDabatase } from './data'
-import { AppRoutes } from './presentation/routes'
-import { Server } from './presentation/server'
+import { envs } from './config/envs';
+import { MongoDatabase } from './data';
+import { AppRoutes } from './presentation/routes';
+import { Server } from './presentation/server';
+
 
 (async()=> {
-  main()
-})()
+  main();
+})();
+
 
 async function main() {
 
-  await MongoDabatase.connect({ mongoUrl: envs.MONGODB_URL, dbName: envs.MONGODB_NAME })
+  await MongoDatabase.connect({
+    dbName: envs.MONGO_DB_NAME,
+    mongoUrl: envs.MONGO_URL,
+  });
 
   const server = new Server({
     port: envs.PORT,
     routes: AppRoutes.routes,
-  })
+  });
 
-  server.start()
+  server.start();
 }
