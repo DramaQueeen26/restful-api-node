@@ -6,7 +6,7 @@ import { AuthService, EmailService } from '../services';
 
 
 
-export class Authroutes {
+export class AuthRoutes {
 
 
   static get routes(): Router {
